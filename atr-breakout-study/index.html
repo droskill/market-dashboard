@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buy the Breakout, Honestly</title>
+<meta name="description" content="A survivorship-safe re-run of the viral 52-week-high breakout study across the S&P 500 and Nasdaq 100. The ATR-breakout edge is real in direction but roughly half of it is survivorship bias.">
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Buy the 52-week-high breakout? The viral edge is half survivorship bias.">
+<meta property="og:description" content="I re-ran the viral breakout study on point-in-time S&P 500 + Nasdaq 100 data. The '>3.5 ATR best breakout' bucket drops from +6.05% to +3.89% once the delisted names are back in.">
+<meta property="og:image" content="https://droskill.github.io/market-dashboard/atr-breakout-study/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Buy the 52-week-high breakout? The viral edge is half survivorship bias.">
+<meta name="twitter:description" content="Point-in-time re-run of the viral breakout study across the S&P 500 + Nasdaq 100. Stronger breakouts still pay — but the headline edge is inflated ~50-80%.">
+<meta name="twitter:image" content="https://droskill.github.io/market-dashboard/atr-breakout-study/og-cover.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  color-scheme: light;
+  --plane:#e8eaec; --surface:#f7f8f9; --surface-2:#eef0f2;
+  --ink:#14171a; --ink-2:#494e54; --muted:#7f838a;
+  --hair:#d6d9dc; --grid:#e2e4e7; --baseline:#c7cacd;
+  --claim:#d1521f; --safe:#2565c2; --crit:#c0392f;
+  --spx:#2565c2; --ndx:#12896a;
+  --accent:#1b1e21;
+  --shadow: 0 1px 2px rgba(20,23,26,.05), 0 8px 30px rgba(20,23,26,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0c0e10; --surface:#15181b; --surface-2:#1b1f22;
+    --ink:#eef0f1; --ink-2:#b4b9be; --muted:#7c8188;
+    --hair:#262a2e; --grid:#232629; --baseline:#33383d;
+    --claim:#e0603a; --safe:#4d92e8; --crit:#e15a51;
+    --spx:#4d92e8; --ndx:#20b184;
+    --accent:#eef0f1;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0c0e10; --surface:#15181b; --surface-2:#1b1f22;
+  --ink:#eef0f1; --ink-2:#b4b9be; --muted:#7c8188;
+  --hair:#262a2e; --grid:#232629; --baseline:#33383d;
+  --claim:#e0603a; --safe:#4d92e8; --crit:#e15a51;
+  --spx:#4d92e8; --ndx:#20b184;
+  --accent:#eef0f1;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--plane); color:var(--ink);
+  font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:17px; line-height:1.65; letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:720px; margin:0 auto; padding:0 22px}
+.measure{max-width:680px}
+
+/* ---- masthead ---- */
+header{padding:60px 0 26px}
+.eyebrow{
+  font-family:"IBM Plex Mono", monospace; font-size:12.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 20px;
+}
+h1{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(2.5rem, 6.5vw, 4rem); line-height:1.02; letter-spacing:-.015em;
+  margin:0 0 22px; text-wrap:balance;
+}
+h1 em{font-style:italic; color:var(--ink-2); font-weight:500}
+.dek{
+  font-family:"Newsreader", Georgia, serif; font-size:clamp(1.15rem,2.6vw,1.4rem);
+  line-height:1.5; color:var(--ink-2); max-width:640px; margin:0; font-weight:400;
+}
+.byline{
+  display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center;
+  margin-top:30px; padding-top:20px; border-top:1px solid var(--hair);
+  font-family:"IBM Plex Mono", monospace; font-size:12.5px; color:var(--muted);
+}
+.byline b{color:var(--ink-2); font-weight:500}
+
+/* ---- body type ---- */
+section{padding:14px 0}
+h2{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(1.6rem,3.6vw,2.05rem); line-height:1.12; letter-spacing:-.01em;
+  margin:44px 0 6px; text-wrap:balance;
+}
+h2 .num{
+  font-family:"IBM Plex Mono", monospace; font-size:.62em; color:var(--safe);
+  font-weight:500; margin-right:.6em; letter-spacing:0;
+}
+.kicker{
+  font-family:"IBM Plex Mono", monospace; font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 18px;
+}
+p{margin:0 0 20px}
+p .measure, .measure p{max-width:680px}
+a{color:var(--safe); text-underline-offset:2px; text-decoration-thickness:1px}
+strong{font-weight:600}
+.lead{font-size:1.06em}
+
+/* ---- stat tiles ---- */
+.tiles{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:30px 0 8px;
+}
+.tile{
+  background:var(--surface); border:1px solid var(--hair); border-radius:12px;
+  padding:20px 18px; box-shadow:var(--shadow);
+}
+.tile .lab{
+  font-family:"IBM Plex Mono", monospace; font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 10px; line-height:1.3;
+}
+.tile .big{
+  font-family:"Newsreader", Georgia, serif; font-size:2.6rem; line-height:1;
+  font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums;
+}
+.tile .sub{font-size:13px; color:var(--ink-2); margin-top:8px; line-height:1.4}
+.c-claim{color:var(--claim)} .c-safe{color:var(--safe)} .c-crit{color:var(--crit)}
+
+/* ---- figure / chart ---- */
+figure{margin:34px 0; }
+.fig-wide{ margin-left:calc((100% - min(920px,92vw))/2 * 0); }
+@media(min-width:940px){
+  .breakout{width:min(920px,92vw); margin-left:calc(360px - min(920px,92vw)/2)}
+}
+.card{
+  background:var(--surface); border:1px solid var(--hair); border-radius:14px;
+  padding:22px 20px 16px; box-shadow:var(--shadow);
+}
+.card h3{
+  margin:0 0 3px; font-family:"IBM Plex Sans",sans-serif; font-weight:600;
+  font-size:1.06rem; letter-spacing:-.01em;
+}
+.card .csub{margin:0 0 14px; font-size:13px; color:var(--muted); font-family:"IBM Plex Mono",monospace}
+.legend{display:flex; flex-wrap:wrap; gap:16px; margin:2px 0 6px}
+.legend span{display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-2)}
+.legend i{width:11px; height:11px; border-radius:3px; display:inline-block}
+figcaption{
+  font-size:13.5px; color:var(--muted); margin-top:14px; line-height:1.5;
+  font-family:"IBM Plex Sans",sans-serif; max-width:680px;
+}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.bar{transition:opacity .12s}
+.chart:hover .bar{opacity:.42}
+.chart .bar:hover{opacity:1}
+text{font-family:"IBM Plex Mono", monospace}
+
+/* ---- data table ---- */
+.tablewrap{overflow-x:auto; margin:24px 0}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:520px}
+caption{
+  text-align:left; font-family:"IBM Plex Mono",monospace; font-size:12px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+  padding-bottom:12px;
+}
+th,td{padding:9px 12px; text-align:right; font-variant-numeric:tabular-nums;
+  border-bottom:1px solid var(--hair)}
+th:first-child,td:first-child{text-align:left; font-variant-numeric:normal}
+thead th{
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--muted); font-weight:500;
+  border-bottom:1.5px solid var(--baseline);
+}
+tbody tr:hover{background:var(--surface-2)}
+td.hi{color:var(--claim); font-weight:600}
+td.lo{color:var(--safe); font-weight:600}
+tr.tot td{border-top:1.5px solid var(--baseline); font-weight:600; border-bottom:none}
+tr.tot td:first-child{font-family:"IBM Plex Mono",monospace; font-size:12px; text-transform:uppercase; letter-spacing:.06em}
+
+/* ---- pull quote / callout ---- */
+.callout{
+  border-left:3px solid var(--safe); background:var(--surface);
+  padding:18px 22px; border-radius:0 10px 10px 0; margin:30px 0;
+  box-shadow:var(--shadow);
+}
+.callout p{margin:0; font-family:"Newsreader",Georgia,serif; font-size:1.22rem;
+  line-height:1.45; color:var(--ink)}
+.callout .who{display:block; margin-top:10px; font-family:"IBM Plex Mono",monospace;
+  font-size:12px; color:var(--muted); letter-spacing:.04em}
+
+/* ---- receipts / method ---- */
+.method{
+  background:var(--surface-2); border:1px solid var(--hair); border-radius:14px;
+  padding:24px 22px; margin:34px 0;
+}
+.method h3{margin:0 0 14px; font-size:.95rem; font-family:"IBM Plex Mono",monospace;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.method ul{margin:0; padding:0; list-style:none}
+.method li{padding:9px 0; border-bottom:1px solid var(--hair); font-size:14.5px;
+  color:var(--ink-2); display:grid; grid-template-columns:130px 1fr; gap:14px}
+.method li:last-child{border-bottom:none}
+.method li b{color:var(--ink); font-family:"IBM Plex Mono",monospace; font-size:12.5px;
+  font-weight:600; padding-top:1px}
+.method code{font-family:"IBM Plex Mono",monospace; font-size:.9em;
+  background:var(--surface); padding:1px 5px; border-radius:4px; border:1px solid var(--hair)}
+
+/* ---- footer ---- */
+footer{border-top:1px solid var(--hair); margin-top:56px; padding:34px 0 70px;
+  font-size:13.5px; color:var(--muted); line-height:1.6}
+footer a{font-family:"IBM Plex Mono",monospace; font-size:13px}
+.disc{font-size:12px; margin-top:18px; color:var(--muted); max-width:680px}
+
+/* ---- theme toggle ---- */
+.toggle{
+  position:fixed; top:16px; right:16px; z-index:10;
+  width:38px; height:38px; border-radius:10px; cursor:pointer;
+  background:var(--surface); border:1px solid var(--hair); color:var(--ink-2);
+  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);
+  font-size:16px;
+}
+.toggle:focus-visible{outline:2px solid var(--safe); outline-offset:2px}
+
+/* ---- tooltip ---- */
+#tip{
+  position:fixed; pointer-events:none; opacity:0; transition:opacity .1s;
+  background:var(--ink); color:var(--plane); font-family:"IBM Plex Mono",monospace;
+  font-size:12px; padding:7px 10px; border-radius:7px; z-index:20; white-space:nowrap;
+  transform:translate(-50%,-125%); box-shadow:0 4px 16px rgba(0,0,0,.25);
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+@media (max-width:560px){
+  .tiles{grid-template-columns:1fr; gap:10px}
+  .tile .big{font-size:2.3rem}
+  .method li{grid-template-columns:1fr; gap:2px}
+  .method li b{padding-top:8px}
+}
+</style>
+</head>
+<body>
+
+<button class="toggle" id="themeBtn" aria-label="Toggle light/dark theme" title="Toggle theme">◑</button>
+<div id="tip" role="status"></div>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Backtest forensics · Aug 2026</p>
+  <h1>Buy the breakout, <em>honestly.</em></h1>
+  <p class="dek">A viral thread said the strongest 52-week-high breakouts are the ones to buy. It ran on today&rsquo;s index members applied backward &mdash; so I re-ran the whole thing on point-in-time data, with every delisted name put back where it belongs.</p>
+  <div class="byline">
+    <span><b>@droskill</b></span>
+    <span>S&amp;P 500 + Nasdaq 100</span>
+    <span>12,245 breakouts · 2012&ndash;2026</span>
+    <span>Norgate point-in-time data</span>
+  </div>
+</header>
+
+<section class="measure">
+  <p class="lead">The setup, from <a href="https://x.com/spluscollective" rel="nofollow">@spluscollective</a>: every time a stock in the S&amp;P 500 or Nasdaq 100 closes at a new 52-week high, measure its return over the next three months. Segment the breakouts by how far the closing price punched above its 21-day EMA, in units of ATR. The finding was clean and went viral: the <em>stronger</em> the breakout, the <em>better</em> it pays and the <em>less</em> often it pulls back &mdash; so stop waiting for the dip and just buy.</p>
+
+  <p>It&rsquo;s a good study. But it has one load-bearing flaw, stated right in the first line: &ldquo;all 511 stocks in $SPY and $QQQ.&rdquo; That&rsquo;s <strong>today&rsquo;s</strong> membership, applied across 14 years of history. Every company that was kicked out of the index &mdash; the blowups, the busts, the ones acquired on the way down &mdash; is silently deleted from the sample. That&rsquo;s survivorship bias, and it doesn&rsquo;t hit evenly. It hits the violent-breakout tail hardest, because a former high-flyer that ripped +4 ATR and then collapsed out of the index is exactly the data point that gets erased.</p>
+
+  <p>So I rebuilt it the honest way: the full &ldquo;Current &amp; Past&rdquo; universe including delisted tickers, and a breakout only counts if the stock was an <em>actual</em> index member on that date (Norgate&rsquo;s point-in-time constituency). Same rule, same three-month hold, same ATR buckets. Here&rsquo;s what changes.</p>
+</section>
+
+<section>
+  <div class="tiles">
+    <div class="tile">
+      <p class="lab">All breakouts · their method</p>
+      <div class="big c-claim">+3.65<span style="font-size:.5em">%</span></div>
+      <p class="sub">avg 3-mo return, today&rsquo;s members. Their thread reported +3.68% &mdash; a near-exact reproduction.</p>
+    </div>
+    <div class="tile">
+      <p class="lab">All breakouts · survivorship-safe</p>
+      <div class="big c-safe">+2.69<span style="font-size:.5em">%</span></div>
+      <p class="sub">Put the delisted names back and the average edge falls by ~1 point.</p>
+    </div>
+    <div class="tile">
+      <p class="lab">The &ldquo;best breakout&rdquo; bucket (&gt;3.5 ATR)</p>
+      <div class="big c-crit">&minus;2.17<span style="font-size:.5em">pts</span></div>
+      <p class="sub">+6.05% &rarr; +3.89%. A third of the flagship edge was bias.</p>
+    </div>
+  </div>
+</section>
+
+<section class="measure">
+  <h2><span class="num">01</span>The bias lives in the best bucket</h2>
+  <p>My biased re-run lands almost exactly on the thread&rsquo;s numbers &mdash; same monotonic ladder, same falling pullback rate &mdash; which tells me the reproduction is faithful. Then swapping in point-in-time membership flattens the ladder. The two weakest buckets barely move. The two strongest give back most of their shine, and the flagship &ldquo;&gt;3.5 ATR&rdquo; bucket loses 2.17 points, over a third of its claimed edge.</p>
+</section>
+
+<figure class="breakout">
+  <div class="card">
+    <h3>Average 3-month return by ATR-breakout size</h3>
+    <p class="csub">their method (today&rsquo;s members) vs. survivorship-safe (point-in-time)</p>
+    <div class="legend">
+      <span><i style="background:var(--claim)"></i>The viral claim &mdash; today&rsquo;s members</span>
+      <span><i style="background:var(--safe)"></i>Survivorship-safe &mdash; point-in-time</span>
+    </div>
+    <div class="chart" id="chart1"></div>
+  </div>
+  <figcaption>The direction survives &mdash; stronger breakouts still pay more &mdash; but the magnitude in the buckets that matter is inflated by roughly 50&ndash;80%. The delisted former high-flyers dropped from the biased sample were disproportionately violent breakouts that later failed.</figcaption>
+</figure>
+
+<section class="measure">
+  <div class="tablewrap">
+    <table>
+      <caption>Survivorship-safe bucket detail (point-in-time)</caption>
+      <thead>
+        <tr><th>ATR bucket</th><th>n</th><th>% pulled back</th><th>avg 3-mo</th><th>median</th><th>win %</th><th>% &ge;20%</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>&lt; 1.5</td><td>570</td><td>88%</td><td>+2.76%</td><td>+2.80%</td><td>61%</td><td>6%</td></tr>
+        <tr><td>1.5 &ndash; 2.5</td><td>6,767</td><td>84%</td><td>+2.48%</td><td>+2.54%</td><td>61%</td><td>5%</td></tr>
+        <tr><td>2.5 &ndash; 3.5</td><td>3,717</td><td>75%</td><td>+2.67%</td><td>+2.63%</td><td>60%</td><td>7%</td></tr>
+        <tr><td>&gt; 3.5</td><td>1,191</td><td>60%</td><td class="lo">+3.89%</td><td>+3.44%</td><td>62%</td><td>10%</td></tr>
+        <tr class="tot"><td>All</td><td>12,245</td><td>80%</td><td>+2.69%</td><td>+2.66%</td><td>61%</td><td>6%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="measure">
+  <h2><span class="num">02</span>Waiting for the pullback still loses</h2>
+  <p>Here&rsquo;s the part of the thread that <em>does</em> survive de-biasing, and it&rsquo;s the practically important one. Strong breakouts rarely come back: in the honest data, only <strong>60%</strong> of &gt;3.5-ATR breakouts ever tag the 21-EMA within a month, versus 88% of the timid ones. If your plan is to wait for the pullback, you systematically miss the best names &mdash; because the best names don&rsquo;t pull back. The &ldquo;just buy the breakout&rdquo; conclusion holds. It&rsquo;s the <em>size</em> of the reward that was oversold, not the direction of the advice.</p>
+</section>
+
+<figure class="breakout">
+  <div class="card">
+    <h3>How often each breakout comes back to the 21-EMA</h3>
+    <p class="csub">within one month · survivorship-safe · lower = rarely gives you the dip entry</p>
+    <div class="chart" id="chart3"></div>
+  </div>
+  <figcaption>The stronger the thrust, the less likely you ever get a second chance at it. That is the real mechanism behind &ldquo;buy the breakout&rdquo; &mdash; not a return premium so much as a <em>fill</em> premium.</figcaption>
+</figure>
+
+<section class="measure">
+  <h2><span class="num">03</span>It&rsquo;s mostly a Nasdaq story</h2>
+  <p>Splitting the honest sample by index is the most interesting thing the original thread couldn&rsquo;t see. The breakout edge is concentrated in the Nasdaq 100: its members average <strong>+4.09%</strong> over three months versus <strong>+2.63%</strong> for the S&amp;P 500, and the strong-breakout bucket pays <strong>+6.72%</strong> in the Nasdaq versus +3.58% in the S&amp;P. Higher-beta growth names carry the effect. In the S&amp;P alone the ATR ladder is nearly flat &mdash; the &ldquo;stronger breakout&rdquo; premium is a large-cap-growth phenomenon wearing a market-wide costume.</p>
+</section>
+
+<figure class="breakout">
+  <div class="card">
+    <h3>Survivorship-safe return by ATR bucket &mdash; S&amp;P 500 vs. Nasdaq 100</h3>
+    <p class="csub">avg 3-month return · point-in-time members of each index</p>
+    <div class="legend">
+      <span><i style="background:var(--spx)"></i>S&amp;P 500 members</span>
+      <span><i style="background:var(--ndx)"></i>Nasdaq 100 members</span>
+    </div>
+    <div class="chart" id="chart2"></div>
+  </div>
+  <figcaption>Nasdaq members can belong to both indices, so the two series overlap in names; the point is the level and slope, not exclusivity. The S&amp;P ladder is flat; the Nasdaq ladder is steep and higher everywhere.</figcaption>
+</figure>
+
+<section class="measure">
+  <h2><span class="num">04</span>Now trade it &mdash; and meet the catch</h2>
+  <p>An event study isn&rsquo;t a strategy, so I wired the honest rule into an actual portfolio: buy every fresh breakout (point-in-time member, no new high in the prior 21 days), hold 63 trading days, rank by ATR distance so that when signals exceed capacity the strongest win the slot, 10 bps/side of friction. It&rsquo;s a legitimate long-only breakout book &mdash; and it exposes the catch the thread&rsquo;s per-trade framing hides.</p>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Tradeable book · point-in-time S&amp;P 500 + Nasdaq 100 · 2012&ndash;2026</caption>
+      <thead>
+        <tr><th>Variant</th><th>CAGR</th><th>MaxDD</th><th>MAR</th><th>Sharpe</th><th>Profit factor</th><th>Avg exposure</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Buy all breakouts, hold 3mo</td><td>12.1%</td><td>&minus;31.1%</td><td>0.39</td><td>0.75</td><td>1.78</td><td>94%</td></tr>
+        <tr><td>+ S&amp;P&gt;200-day regime gate</td><td>11.5%</td><td>&minus;26.2%</td><td class="lo">0.44</td><td>0.76</td><td>1.81</td><td>90%</td></tr>
+        <tr><td>Only &gt;3.5-ATR breakouts</td><td>6.6%</td><td>&minus;20.4%</td><td>0.32</td><td>0.67</td><td class="hi">2.00</td><td>38%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p>The &ldquo;&gt;3.5 ATR&rdquo; bucket has the best per-trade edge and the worst portfolio. There simply aren&rsquo;t enough violent breakouts to stay invested &mdash; gate on them and you sit in cash 62% of the time.</p>
+    <span class="who">ATR-breakout size is a superb <b>ranker</b>, a lousy <b>filter</b>.</span>
+  </div>
+
+  <p>So the correct way to use the thread&rsquo;s headline finding isn&rsquo;t to only buy the monster breakouts &mdash; it&rsquo;s to take them all and let the ATR score decide who gets the last slot when breakouts are plentiful. A market-regime gate (only open new positions while the S&amp;P is above its 200-day average) is the bigger lever for a real book, trimming the 2022 drawdown from &minus;31% to &minus;26% for almost no give-up in return. The honest ceiling here is a MAR around <strong>0.44</strong> &mdash; a respectable momentum sleeve, not the effortless money the per-trade averages implied.</p>
+</section>
+
+<div class="method measure">
+  <h3>Receipts</h3>
+  <ul>
+    <li><b>Universe</b><span>&ldquo;S&amp;P 500 Current &amp; Past&rdquo; + &ldquo;Nasdaq 100 Current &amp; Past&rdquo; &mdash; 1,509 symbols including delisted tickers. Point-in-time membership required at the breakout date.</span></li>
+    <li><b>Breakout</b><span>Close prints a new 52-week high (<code>C &gt; HHV(H,252)[1]</code>), de-duplicated to fresh events (no new high in the prior 21 bars). ~18,000 raw events; 12,245 pass point-in-time membership.</span></li>
+    <li><b>ATR size</b><span><code>(Close &minus; EMA21) / ATR(14)</code>, Wilder ATR. Buckets &lt;1.5 / 1.5&ndash;2.5 / 2.5&ndash;3.5 / &gt;3.5, matching the thread.</span></li>
+    <li><b>Forward</b><span>63-trading-day (3-month) total return on split/dividend-adjusted closes. &ldquo;Pulled back&rdquo; = the low tags the 21-EMA within 21 trading days.</span></li>
+    <li><b>Biased run</b><span>Same code, restricted to <em>today&rsquo;s</em> 518 index members with no point-in-time gate &mdash; the thread&rsquo;s method &mdash; to isolate the bias as the difference between the two.</span></li>
+    <li><b>Book</b><span>RealTest, 10 bps/side + commission, cash account (no leverage), ATR distance as SetupScore. Numbers are backtests, not forecasts.</span></li>
+  </ul>
+</div>
+
+<section class="measure">
+  <p style="color:var(--ink-2)">The takeaway isn&rsquo;t &ldquo;the thread was wrong.&rdquo; It nearly reproduced, and its core advice &mdash; buy the breakout, don&rsquo;t wait for a dip that never comes &mdash; is right. The takeaway is that the number you get when you delete the losers is not the number you&rsquo;ll trade. Point-in-time data is the difference between a finding and a fantasy.</p>
+</section>
+
+<footer class="wrap">
+  <div>Analysis, code, and data pipeline by <b style="color:var(--ink-2)">@droskill</b>. Prices and point-in-time index constituency from Norgate Data. Event study in Python (norgatedata + pandas); tradeable book in RealTest.</div>
+  <p class="disc">For research and education only. Backtested results are hypothetical, do not reflect trading costs in full, and are not indicative of future results. Nothing here is investment advice.</p>
+</footer>
+
+</div>
+
+<script>
+// ---------- theme toggle ----------
+(function(){
+  var btn=document.getElementById('themeBtn'), root=document.documentElement;
+  function cur(){var t=root.getAttribute('data-theme'); if(t)return t;
+    return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+  try{var s=localStorage.getItem('atrbo-theme'); if(s)root.setAttribute('data-theme',s);}catch(e){}
+  btn.addEventListener('click',function(){
+    var next=cur()==='dark'?'light':'dark'; root.setAttribute('data-theme',next);
+    try{localStorage.setItem('atrbo-theme',next);}catch(e){}
+    drawAll();
+  });
+})();
+
+// ---------- grouped bar chart ----------
+function cssvar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+var tip=document.getElementById('tip');
+function showTip(html,x,y){tip.innerHTML=html; tip.style.left=x+'px'; tip.style.top=y+'px'; tip.style.opacity=1;}
+function hideTip(){tip.style.opacity=0;}
+
+function groupedBars(sel, opts){
+  var el=document.querySelector(sel); if(!el)return;
+  var cats=opts.cats, series=opts.series, ymax=opts.ymax, unit=opts.unit||'%';
+  var plus=opts.plus===false?'':'+';
+  var W=920, H=360, mL=44, mR=14, mT=18, mB=44;
+  var pw=W-mL-mR, ph=H-mT-mB;
+  var y=function(v){return mT+ph-(v/ymax)*ph;};
+  var muted=cssvar('--muted'), grid=cssvar('--grid'), base=cssvar('--baseline'), ink=cssvar('--ink-2');
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+opts.aria+'">';
+  // gridlines + y ticks
+  var step= opts.ystep || (ymax<=7?1:2);
+  for(var g=0; g<=ymax+0.001; g+=step){
+    var yy=y(g);
+    svg+='<line x1="'+mL+'" y1="'+yy+'" x2="'+(W-mR)+'" y2="'+yy+'" stroke="'+grid+'" stroke-width="1"/>';
+    svg+='<text x="'+(mL-8)+'" y="'+(yy+4)+'" fill="'+muted+'" font-size="12" text-anchor="end">'+g+(unit==='%'?'':'')+'</text>';
+  }
+  svg+='<line x1="'+mL+'" y1="'+y(0)+'" x2="'+(W-mR)+'" y2="'+y(0)+'" stroke="'+base+'" stroke-width="1.5"/>';
+  var n=cats.length, gw=pw/n, ns=series.length;
+  var pad=gw*0.20, inner=gw-2*pad, bw=Math.min(inner/ns-4, 58);
+  var totalBars=ns*bw+(ns-1)*4, startOff=(gw-totalBars)/2;
+  for(var i=0;i<n;i++){
+    var gx=mL+i*gw;
+    // category label
+    svg+='<text x="'+(gx+gw/2)+'" y="'+(H-mB+22)+'" fill="'+ink+'" font-size="13" text-anchor="middle">'+cats[i]+'</text>';
+    for(var s=0;s<ns;s++){
+      var v=series[s].values[i], bx=gx+startOff+s*(bw+4), by=y(v), bh=y(0)-by;
+      var col=cssvar(series[s].colorVar);
+      svg+='<rect class="bar" x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="4" fill="'+col+'" '
+         +'data-tip="'+cats[i]+' &middot; '+series[s].name+': <b>'+plus+v.toFixed(unit==='%'&&plus===''?0:2)+unit+'</b>"></rect>';
+      var lbl=(unit==='%'&&plus==='')?v.toFixed(0)+'%':v.toFixed(1);
+      svg+='<text x="'+(bx+bw/2)+'" y="'+(by-7)+'" fill="'+col+'" font-size="13" font-weight="600" text-anchor="middle">'+lbl+'</text>';
+    }
+  }
+  svg+='</svg>';
+  el.innerHTML=svg;
+  el.querySelectorAll('.bar').forEach(function(r){
+    r.addEventListener('mousemove',function(e){showTip(r.getAttribute('data-tip'),e.clientX,e.clientY);});
+    r.addEventListener('mouseleave',hideTip);
+  });
+}
+
+function drawAll(){
+  groupedBars('#chart1',{
+    cats:['<1.5','1.5-2.5','2.5-3.5','>3.5','ALL'], ymax:7, aria:'Average 3-month return by ATR bucket, biased versus survivorship-safe',
+    series:[
+      {name:"Viral claim",colorVar:'--claim',values:[2.72,3.37,3.53,6.05,3.65]},
+      {name:"Survivorship-safe",colorVar:'--safe',values:[2.76,2.48,2.67,3.89,2.69]}
+    ]});
+  groupedBars('#chart2',{
+    cats:['<1.5','1.5-2.5','2.5-3.5','>3.5','ALL'], ymax:7, aria:'Survivorship-safe return by ATR bucket, S&P 500 versus Nasdaq 100',
+    series:[
+      {name:"S&P 500",colorVar:'--spx',values:[2.73,2.49,2.56,3.58,2.63]},
+      {name:"Nasdaq 100",colorVar:'--ndx',values:[5.22,3.76,3.56,6.72,4.09]}
+    ]});
+  groupedBars('#chart3',{
+    cats:['<1.5','1.5-2.5','2.5-3.5','>3.5'], ymax:100, ystep:25, unit:'%', plus:false, aria:'Share of breakouts that pull back to the 21-EMA within a month, by ATR bucket',
+    series:[{name:"Pulled back within 1mo",colorVar:'--safe',values:[88,84,75,60]}]});
+}
+drawAll();
+addEventListener('resize',function(){/* svg is responsive via viewBox; nothing to redraw */});
+</script>
+</body>
+</html>
