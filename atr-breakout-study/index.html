@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Buy the Breakout, Honestly</title>
-<meta name="description" content="A survivorship-safe re-run of the viral 52-week-high breakout study across the S&P 500 and Nasdaq 100. The ATR-breakout edge is real in direction but roughly half of it is survivorship bias.">
+<meta name="description" content="A survivorship-safe re-run of the widely-shared 52-week-high breakout study across the S&P 500 and Nasdaq 100. The ATR-breakout edge is real in direction but roughly half of it is survivorship bias.">
 
 <!-- Open Graph / Twitter -->
 <meta property="og:type" content="article">
-<meta property="og:title" content="Buy the 52-week-high breakout? The viral edge is half survivorship bias.">
-<meta property="og:description" content="I re-ran the viral breakout study on point-in-time S&P 500 + Nasdaq 100 data. The '>3.5 ATR best breakout' bucket drops from +6.05% to +3.89% once the delisted names are back in.">
+<meta property="og:title" content="Buy the 52-week-high breakout? The edge is half survivorship bias.">
+<meta property="og:description" content="I re-ran the breakout study on point-in-time S&P 500 + Nasdaq 100 data. The '>3.5 ATR best breakout' bucket drops from +6.05% to +3.89% once the delisted names are back in.">
 <meta property="og:image" content="https://droskill.github.io/market-dashboard/atr-breakout-study/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Buy the 52-week-high breakout? The viral edge is half survivorship bias.">
-<meta name="twitter:description" content="Point-in-time re-run of the viral breakout study across the S&P 500 + Nasdaq 100. Stronger breakouts still pay — but the headline edge is inflated ~50-80%.">
+<meta name="twitter:title" content="Buy the 52-week-high breakout? The edge is half survivorship bias.">
+<meta name="twitter:description" content="Point-in-time re-run of the breakout study across the S&P 500 + Nasdaq 100. Stronger breakouts still pay — but the headline edge is inflated ~50-80%.">
 <meta name="twitter:image" content="https://droskill.github.io/market-dashboard/atr-breakout-study/og-cover.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -247,7 +247,7 @@ footer a{font-family:"IBM Plex Mono",monospace; font-size:13px}
 <header>
   <p class="eyebrow">Backtest forensics · Aug 2026</p>
   <h1>Buy the breakout, <em>honestly.</em></h1>
-  <p class="dek">A viral thread said the strongest 52-week-high breakouts are the ones to buy. It ran on today&rsquo;s index members applied backward &mdash; so I re-ran the whole thing on point-in-time data, with every delisted name put back where it belongs.</p>
+  <p class="dek">A widely-shared thread said the strongest 52-week-high breakouts are the ones to buy. It ran on today&rsquo;s index members applied backward &mdash; so I re-ran the whole thing on point-in-time data, with every delisted name put back where it belongs.</p>
   <div class="byline">
     <span><b>@droskill</b></span>
     <span>S&amp;P 500 + Nasdaq 100</span>
@@ -257,7 +257,7 @@ footer a{font-family:"IBM Plex Mono",monospace; font-size:13px}
 </header>
 
 <section class="measure">
-  <p class="lead">The setup, from <a href="https://x.com/spluscollective" rel="nofollow">@spluscollective</a>: every time a stock in the S&amp;P 500 or Nasdaq 100 closes at a new 52-week high, measure its return over the next three months. Segment the breakouts by how far the closing price punched above its 21-day EMA, in units of ATR. The finding was clean and went viral: the <em>stronger</em> the breakout, the <em>better</em> it pays and the <em>less</em> often it pulls back &mdash; so stop waiting for the dip and just buy.</p>
+  <p class="lead">The setup, from <a href="https://x.com/spluscollective" rel="nofollow">@spluscollective</a>: every time a stock in the S&amp;P 500 or Nasdaq 100 closes at a new 52-week high, measure its return over the next three months. Segment the breakouts by how far the closing price punched above its 21-day EMA, in units of ATR. The finding was clean and widely shared: the <em>stronger</em> the breakout, the <em>better</em> it pays and the <em>less</em> often it pulls back &mdash; so stop waiting for the dip and just buy.</p>
 
   <p>It&rsquo;s a good study. But it has one load-bearing flaw, stated right in the first line: &ldquo;all 511 stocks in $SPY and $QQQ.&rdquo; That&rsquo;s <strong>today&rsquo;s</strong> membership, applied across 14 years of history. Every company that was kicked out of the index &mdash; the blowups, the busts, the ones acquired on the way down &mdash; is silently deleted from the sample. That&rsquo;s survivorship bias, and it doesn&rsquo;t hit evenly. It hits the violent-breakout tail hardest, because a former high-flyer that ripped +4 ATR and then collapsed out of the index is exactly the data point that gets erased.</p>
 
@@ -294,7 +294,7 @@ footer a{font-family:"IBM Plex Mono",monospace; font-size:13px}
     <h3>Average 3-month return by ATR-breakout size</h3>
     <p class="csub">their method (today&rsquo;s members) vs. survivorship-safe (point-in-time)</p>
     <div class="legend">
-      <span><i style="background:var(--claim)"></i>The viral claim &mdash; today&rsquo;s members</span>
+      <span><i style="background:var(--claim)"></i>The claim &mdash; today&rsquo;s members</span>
       <span><i style="background:var(--safe)"></i>Survivorship-safe &mdash; point-in-time</span>
     </div>
     <div class="chart" id="chart1"></div>
@@ -466,7 +466,7 @@ function drawAll(){
   groupedBars('#chart1',{
     cats:['<1.5','1.5-2.5','2.5-3.5','>3.5','ALL'], ymax:7, aria:'Average 3-month return by ATR bucket, biased versus survivorship-safe',
     series:[
-      {name:"Viral claim",colorVar:'--claim',values:[2.72,3.37,3.53,6.05,3.65]},
+      {name:"The claim",colorVar:'--claim',values:[2.72,3.37,3.53,6.05,3.65]},
       {name:"Survivorship-safe",colorVar:'--safe',values:[2.76,2.48,2.67,3.89,2.69]}
     ]});
   groupedBars('#chart2',{
