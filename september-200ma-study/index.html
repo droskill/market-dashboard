@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Is September Explosive?</title>
+<meta name="description" content="A post from X noted that the best Septembers cluster above the 200-day average. That's a real filter — so I ran it across all 12 months of the S&P 500 back to 1928. It holds market-wide, and it says September is the calendar's quietest month, not its most explosive.">
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Is September explosive? The 200-day line says it's the quiet month.">
+<meta property="og:description" content="The best Septembers do cluster above the 200-day average — but so do the best of every month. Run the same filter across all 12 months since 1928 and September is the flattest of them all.">
+<meta property="og:image" content="https://droskill.github.io/market-dashboard/september-200ma-study/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Is September explosive? The 200-day line says it's the quiet month.">
+<meta name="twitter:description" content="The 200-day filter is real and worth respecting. Applied to all 12 months of the S&P since 1928, it makes September the weakest month — not the firecracker.">
+<meta name="twitter:image" content="https://droskill.github.io/market-dashboard/september-200ma-study/og-cover.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  color-scheme: light;
+  --plane:#e8eaec; --surface:#f7f8f9; --surface-2:#eef0f2;
+  --ink:#14171a; --ink-2:#494e54; --muted:#7f838a;
+  --hair:#d6d9dc; --grid:#e2e4e7; --baseline:#c7cacd;
+  --claim:#d1521f; --safe:#2565c2; --crit:#c0392f; --pos:#12896a;
+  --accent:#1b1e21;
+  --shadow: 0 1px 2px rgba(20,23,26,.05), 0 8px 30px rgba(20,23,26,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0c0e10; --surface:#15181b; --surface-2:#1b1f22;
+    --ink:#eef0f1; --ink-2:#b4b9be; --muted:#7c8188;
+    --hair:#262a2e; --grid:#232629; --baseline:#33383d;
+    --claim:#e0603a; --safe:#4d92e8; --crit:#e15a51; --pos:#20b184;
+    --accent:#eef0f1;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0c0e10; --surface:#15181b; --surface-2:#1b1f22;
+  --ink:#eef0f1; --ink-2:#b4b9be; --muted:#7c8188;
+  --hair:#262a2e; --grid:#232629; --baseline:#33383d;
+  --claim:#e0603a; --safe:#4d92e8; --crit:#e15a51; --pos:#20b184;
+  --accent:#eef0f1;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--plane); color:var(--ink);
+  font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:17px; line-height:1.65; letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:720px; margin:0 auto; padding:0 22px}
+.measure{max-width:680px}
+
+header{padding:60px 0 26px}
+.eyebrow{
+  font-family:"IBM Plex Mono", monospace; font-size:12.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 20px;
+}
+h1{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(2.5rem, 6.5vw, 4rem); line-height:1.02; letter-spacing:-.015em;
+  margin:0 0 22px; text-wrap:balance;
+}
+h1 em{font-style:italic; color:var(--ink-2); font-weight:500}
+.dek{
+  font-family:"Newsreader", Georgia, serif; font-size:clamp(1.15rem,2.6vw,1.4rem);
+  line-height:1.5; color:var(--ink-2); max-width:640px; margin:0; font-weight:400;
+}
+.byline{
+  display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center;
+  margin-top:30px; padding-top:20px; border-top:1px solid var(--hair);
+  font-family:"IBM Plex Mono", monospace; font-size:12.5px; color:var(--muted);
+}
+.byline b{color:var(--ink-2); font-weight:500}
+
+section{padding:14px 0}
+h2{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(1.6rem,3.6vw,2.05rem); line-height:1.12; letter-spacing:-.01em;
+  margin:44px 0 6px; text-wrap:balance;
+}
+h2 .num{
+  font-family:"IBM Plex Mono", monospace; font-size:.62em; color:var(--safe);
+  font-weight:500; margin-right:.6em; letter-spacing:0;
+}
+p{margin:0 0 20px}
+p .measure, .measure p{max-width:680px}
+a{color:var(--safe); text-underline-offset:2px; text-decoration-thickness:1px}
+strong{font-weight:600}
+.lead{font-size:1.06em}
+
+.tiles{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:30px 0 8px;
+}
+.tile{
+  background:var(--surface); border:1px solid var(--hair); border-radius:12px;
+  padding:20px 18px; box-shadow:var(--shadow);
+}
+.tile .lab{
+  font-family:"IBM Plex Mono", monospace; font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 10px; line-height:1.3;
+}
+.tile .big{
+  font-family:"Newsreader", Georgia, serif; font-size:2.6rem; line-height:1;
+  font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums;
+}
+.tile .sub{font-size:13px; color:var(--ink-2); margin-top:8px; line-height:1.4}
+.c-claim{color:var(--claim)} .c-safe{color:var(--safe)} .c-crit{color:var(--crit)} .c-pos{color:var(--pos)}
+
+figure{margin:34px 0; }
+@media(min-width:940px){
+  .breakout{width:min(920px,92vw); margin-left:calc(360px - min(920px,92vw)/2)}
+}
+.card{
+  background:var(--surface); border:1px solid var(--hair); border-radius:14px;
+  padding:22px 20px 16px; box-shadow:var(--shadow);
+}
+.card h3{
+  margin:0 0 3px; font-family:"IBM Plex Sans",sans-serif; font-weight:600;
+  font-size:1.06rem; letter-spacing:-.01em;
+}
+.card .csub{margin:0 0 14px; font-size:13px; color:var(--muted); font-family:"IBM Plex Mono",monospace}
+.legend{display:flex; flex-wrap:wrap; gap:16px; margin:2px 0 6px}
+.legend span{display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-2)}
+.legend i{width:11px; height:11px; border-radius:3px; display:inline-block}
+figcaption{
+  font-size:13.5px; color:var(--muted); margin-top:14px; line-height:1.5;
+  font-family:"IBM Plex Sans",sans-serif; max-width:680px;
+}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.bar{transition:opacity .12s}
+.chart:hover .bar{opacity:.42}
+.chart .bar:hover{opacity:1}
+text{font-family:"IBM Plex Mono", monospace}
+
+.tablewrap{overflow-x:auto; margin:24px 0}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:520px}
+caption{
+  text-align:left; font-family:"IBM Plex Mono",monospace; font-size:12px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+  padding-bottom:12px;
+}
+th,td{padding:9px 12px; text-align:right; font-variant-numeric:tabular-nums;
+  border-bottom:1px solid var(--hair)}
+th:first-child,td:first-child{text-align:left; font-variant-numeric:normal}
+thead th{
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--muted); font-weight:500;
+  border-bottom:1.5px solid var(--baseline);
+}
+tbody tr:hover{background:var(--surface-2)}
+td.hi{color:var(--claim); font-weight:600}
+td.lo{color:var(--pos); font-weight:600}
+tr.mark td{background:color-mix(in srgb, var(--claim) 9%, transparent)}
+tr.mark:hover td{background:color-mix(in srgb, var(--claim) 14%, transparent)}
+tr.tot td{border-top:1.5px solid var(--baseline); font-weight:600; border-bottom:none}
+tr.tot td:first-child{font-family:"IBM Plex Mono",monospace; font-size:12px; text-transform:uppercase; letter-spacing:.06em}
+
+.callout{
+  border-left:3px solid var(--safe); background:var(--surface);
+  padding:18px 22px; border-radius:0 10px 10px 0; margin:30px 0;
+  box-shadow:var(--shadow);
+}
+.callout p{margin:0; font-family:"Newsreader",Georgia,serif; font-size:1.22rem;
+  line-height:1.45; color:var(--ink)}
+.callout .who{display:block; margin-top:10px; font-family:"IBM Plex Mono",monospace;
+  font-size:12px; color:var(--muted); letter-spacing:.04em}
+
+.method{
+  background:var(--surface-2); border:1px solid var(--hair); border-radius:14px;
+  padding:24px 22px; margin:34px 0;
+}
+.method h3{margin:0 0 14px; font-size:.95rem; font-family:"IBM Plex Mono",monospace;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.method ul{margin:0; padding:0; list-style:none}
+.method li{padding:9px 0; border-bottom:1px solid var(--hair); font-size:14.5px;
+  color:var(--ink-2); display:grid; grid-template-columns:130px 1fr; gap:14px}
+.method li:last-child{border-bottom:none}
+.method li b{color:var(--ink); font-family:"IBM Plex Mono",monospace; font-size:12.5px;
+  font-weight:600; padding-top:1px}
+.method code{font-family:"IBM Plex Mono",monospace; font-size:.9em;
+  background:var(--surface); padding:1px 5px; border-radius:4px; border:1px solid var(--hair)}
+
+footer{border-top:1px solid var(--hair); margin-top:56px; padding:34px 0 70px;
+  font-size:13.5px; color:var(--muted); line-height:1.6}
+footer a{font-family:"IBM Plex Mono",monospace; font-size:13px}
+.disc{font-size:12px; margin-top:18px; color:var(--muted); max-width:680px}
+
+.toggle{
+  position:fixed; top:16px; right:16px; z-index:10;
+  width:38px; height:38px; border-radius:10px; cursor:pointer;
+  background:var(--surface); border:1px solid var(--hair); color:var(--ink-2);
+  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);
+  font-size:16px;
+}
+.toggle:focus-visible{outline:2px solid var(--safe); outline-offset:2px}
+
+#tip{
+  position:fixed; pointer-events:none; opacity:0; transition:opacity .1s;
+  background:var(--ink); color:var(--plane); font-family:"IBM Plex Mono",monospace;
+  font-size:12px; padding:7px 10px; border-radius:7px; z-index:20; white-space:nowrap;
+  transform:translate(-50%,-125%); box-shadow:0 4px 16px rgba(0,0,0,.25);
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+@media (max-width:560px){
+  .tiles{grid-template-columns:1fr; gap:10px}
+  .tile .big{font-size:2.3rem}
+  .method li{grid-template-columns:1fr; gap:2px}
+  .method li b{padding-top:8px}
+}
+</style>
+</head>
+<body>
+
+<button class="toggle" id="themeBtn" aria-label="Toggle light/dark theme" title="Toggle theme">◑</button>
+<div id="tip" role="status"></div>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Seasonality forensics · Aug 2026</p>
+  <h1>Is September <em>explosive?</em></h1>
+  <p class="dek">A post from X made a sharp observation: the best Septembers cluster above the 200-day average. That&rsquo;s a real, useful filter &mdash; so I ran it across all twelve months of the S&amp;P 500 back to 1928. It holds market-wide. And it says September is the calendar&rsquo;s quietest month, not its firecracker.</p>
+  <div class="byline">
+    <span><b>@droskill</b></span>
+    <span>S&amp;P 500 ($SPX)</span>
+    <span>1,183 months · 1928&ndash;2026</span>
+    <span>Norgate Data</span>
+  </div>
+</header>
+
+<section class="measure">
+  <p class="lead">Credit where it&rsquo;s due: the chart from <a href="https://x.com/HostileCharts" rel="nofollow">@HostileCharts</a> was making a genuinely good point. Of the 20 best Septembers since 1928, 16 came while the S&amp;P was above its 200-day moving average and 15 had a positive year-to-date. The conclusion &mdash; that September&rsquo;s character depends on the conditions it starts in, and that the same setup can produce both the best and worst months &mdash; is exactly the right instinct. Trend state matters. Most people ignore it entirely.</p>
+
+  <p>So this isn&rsquo;t a takedown. It&rsquo;s a &ldquo;yes, and.&rdquo; The 200-day filter is real enough to be worth generalizing, and the honest way to test it is to apply it to <em>every</em> month, not just September. When you do, two things fall out. The filter earns its keep across the whole calendar. And under that same filter, September stops looking explosive and starts looking like the flattest square on the board.</p>
+</section>
+
+<section>
+  <div class="tiles">
+    <div class="tile">
+      <p class="lab">Above 200-day · all months</p>
+      <div class="big c-safe">+0.89<span style="font-size:.5em">%</span></div>
+      <p class="sub">Average monthly return when the S&amp;P enters above its 200-day line. 62.8% of those months finished green.</p>
+    </div>
+    <div class="tile">
+      <p class="lab">Below 200-day · all months</p>
+      <div class="big c-claim">+0.18<span style="font-size:.5em">%</span></div>
+      <p class="sub">Same, when it enters below the line. 53.1% green. The filter is real &mdash; a 5&times; gap in average return.</p>
+    </div>
+    <div class="tile">
+      <p class="lab">September · above the 200-day</p>
+      <div class="big c-crit">+0.07<span style="font-size:.5em">%</span></div>
+      <p class="sub">September&rsquo;s average even <em>when</em> it starts above the line. 50% green &mdash; a coin flip, the weakest of any month.</p>
+    </div>
+  </div>
+</section>
+
+<section class="measure">
+  <h2><span class="num">01</span>The 200-day filter is real &mdash; and not just in September</h2>
+  <p>Start with the part the post got right. Split all 1,183 months in the record by one bit of information: was the S&amp;P above or below its 200-day average entering the month? Above-the-line months average <strong>+0.89%</strong> and finish green 63% of the time; below-the-line months average <strong>+0.18%</strong> and are a near coin flip at 53%. That&rsquo;s a real, persistent edge from a single trend switch &mdash; roughly a five-to-one gap in expected return. Respecting the 200-day line is good discipline, and the post deserves credit for pointing at it.</p>
+</section>
+
+<figure class="breakout">
+  <div class="card">
+    <h3>Average monthly return by calendar month &mdash; only when above the 200-day line</h3>
+    <p class="csub">S&amp;P 500 · 1928&ndash;2026 · months entering above their 200-day average</p>
+    <div class="chart" id="chart1"></div>
+  </div>
+  <figcaption>Even after you keep only the &ldquo;good&rdquo; months &mdash; the ones that start in an uptrend &mdash; September (+0.07%) and October (&minus;0.36%) are the two that go nowhere. December and November nearly triple the calendar average. September isn&rsquo;t explosive in this data; it&rsquo;s the quietest month there is.</figcaption>
+</figure>
+
+<section class="measure">
+  <h2><span class="num">02</span>&ldquo;16 of 20 above the line&rdquo; is close to the baseline</h2>
+  <p>Here&rsquo;s the one place I&rsquo;d gently push back on the framing. Because markets rise more than they fall, the S&amp;P spends most of its life above the 200-day line: <strong>67% of all months</strong> in the sample start there. So any list of &ldquo;best months&rdquo; will be roughly two-thirds above the line before you sort a single return. Sixteen of twenty &mdash; 80% &mdash; is above that baseline, but by less than it first appears. The filter&rsquo;s value shows up in the <em>averages</em> above, not in the headcount of a top-20 list.</p>
+
+  <p>And there&rsquo;s a genuine surprise waiting if you take that headcount logic to the whole market. Rank <em>every</em> month in history by return and look at the 20 biggest up-months of all time &mdash; only <strong>7 of them</strong> (35%) were above the 200-day line. The largest monthly gains on record are bear-market rallies: the ferocious bounces of 1932, 1938, 2020. If &ldquo;explosive&rdquo; means the biggest moves, explosiveness actually lives <em>below</em> the trend, not above it. September&rsquo;s best months simply aren&rsquo;t those &mdash; which is why its top-20 skews so far above the line in the first place.</p>
+</section>
+
+<figure class="breakout">
+  <div class="card">
+    <h3>Share of months that sat above the 200-day line</h3>
+    <p class="csub">the baseline, the biggest up-months, and the best Septembers</p>
+    <div class="chart" id="chart2"></div>
+  </div>
+  <figcaption>Two-thirds of all months already start above the line, so &ldquo;most of the best Septembers were above it&rdquo; is partly just the base rate. The twist: the 20 biggest up-months in market history skew the other way &mdash; only about a third were above the line, because the largest single-month gains are bear-market snapbacks.</figcaption>
+</figure>
+
+<section class="measure">
+  <h2><span class="num">03</span>Under its own filter, September is the quiet month</h2>
+  <p>Rank the twelve months by how they behave <em>after</em> you apply the post&rsquo;s own above-the-line condition, and September lands at the bottom with October. It&rsquo;s the only month that&rsquo;s a literal coin flip in an uptrend (50% green), and its average return is a rounding error next to December&rsquo;s +1.76% or November&rsquo;s +1.68%. Below the line, September is genuinely rough &mdash; a &minus;3.99% average and only 32% green &mdash; but that&rsquo;s the point: September&rsquo;s distinctive trait is downside <em>tail risk</em> when the trend is already broken, not explosive upside when it&rsquo;s intact.</p>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Every month, split by 200-day state entering the month · S&amp;P 500 1928&ndash;2026</caption>
+      <thead>
+        <tr><th>Month</th><th>Above: avg</th><th>Above: % green</th><th>Below: avg</th><th>Below: % green</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>+1.46%</td><td>66%</td><td>+0.71%</td><td>57%</td></tr>
+        <tr><td>Feb</td><td>+0.33%</td><td>61%</td><td>&minus;1.13%</td><td>30%</td></tr>
+        <tr><td>Mar</td><td>+0.80%</td><td>61%</td><td>&minus;0.10%</td><td>59%</td></tr>
+        <tr><td>Apr</td><td>+0.85%</td><td>68%</td><td>+2.09%</td><td>59%</td></tr>
+        <tr><td>May</td><td>+1.11%</td><td>67%</td><td>&minus;1.67%</td><td>49%</td></tr>
+        <tr><td>Jun</td><td>+1.26%</td><td>64%</td><td>&minus;0.16%</td><td>42%</td></tr>
+        <tr><td>Jul</td><td>+1.37%</td><td>61%</td><td>+2.40%</td><td>59%</td></tr>
+        <tr><td>Aug</td><td>+0.37%</td><td>57%</td><td>+1.38%</td><td>63%</td></tr>
+        <tr class="mark"><td>Sep</td><td class="hi">+0.07%</td><td class="hi">50%</td><td>&minus;3.99%</td><td>32%</td></tr>
+        <tr><td>Oct</td><td>&minus;0.36%</td><td>55%</td><td>+2.11%</td><td>67%</td></tr>
+        <tr><td>Nov</td><td>+1.68%</td><td>67%</td><td>&minus;0.45%</td><td>52%</td></tr>
+        <tr><td>Dec</td><td class="lo">+1.76%</td><td class="lo">78%</td><td>+0.33%</td><td>62%</td></tr>
+        <tr class="tot"><td>All</td><td>+0.89%</td><td>63%</td><td>+0.18%</td><td>53%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p>The 200-day line is a genuine filter, and it agrees with the post that conditions matter. It just tells a different story about September: not explosive upside in an uptrend, but real downside when the trend has already turned.</p>
+    <span class="who">Same filter, followed one step further.</span>
+  </div>
+</section>
+
+<section class="measure">
+  <h2><span class="num">04</span>So what would you actually do with this?</h2>
+  <p>The practical read isn&rsquo;t &ldquo;sell every September&rdquo; &mdash; seasonality that weak is not a strategy, and the post is right that a fearful, blanket &ldquo;September is bearish&rdquo; is lazy. The read is the thing the post and this analysis agree on: <strong>trade the trend state, not the calendar page.</strong> A September that opens above the 200-day line is an ordinary, slightly sleepy month you can hold through. A September that opens <em>below</em> it carries a &minus;4% average and a two-in-three chance of a red month &mdash; that&rsquo;s where the caution belongs. The month name was never the signal. The 200-day line, the thing the original post reached for, is.</p>
+</section>
+
+<div class="method measure">
+  <h3>Receipts</h3>
+  <ul>
+    <li><b>Series</b><span>S&amp;P 500 index (<code>$SPX</code>), daily closes from Norgate Data, February 1928 through August 2026 &mdash; 1,183 completed months.</span></li>
+    <li><b>Filter</b><span>200-day simple moving average of the daily close. Each month is tagged by the state at the <em>prior</em> month-end: was the close above or below its 200-day average? No look-ahead.</span></li>
+    <li><b>Return</b><span>Month-over-month percent change of the index close (price return). Green = a positive month.</span></li>
+    <li><b>Baseline</b><span>793 of 1,183 months (67%) entered above the line. Best/worst month lists rank all months by return; the September list mirrors the post&rsquo;s top-20 (16 of 20 above; 15 of 20 in my reconstruction &mdash; same story).</span></li>
+    <li><b>Note</b><span>Price return excludes dividends, so long-run averages understate total return by a roughly constant amount &mdash; it doesn&rsquo;t change the month-to-month comparison, which is the whole point here.</span></li>
+  </ul>
+</div>
+
+<section class="measure">
+  <p style="color:var(--ink-2)">None of this makes the original post wrong. It spotted the right variable &mdash; trend state via the 200-day line &mdash; and drew a fair conclusion about September&rsquo;s dual nature. Following that same variable across all twelve months just sharpens the picture: the explosiveness people fear or hope for in September isn&rsquo;t really there. What&rsquo;s there is a quiet month that turns dangerous only once the trend has already broken. The line was the signal all along.</p>
+</section>
+
+<footer class="wrap">
+  <div>Analysis and code by <b style="color:var(--ink-2)">@droskill</b>, in constructive reply to <b style="color:var(--ink-2)">@HostileCharts</b>. Prices from Norgate Data; analysis in Python (norgatedata + pandas).</div>
+  <p class="disc">For research and education only. Historical seasonal patterns are hypothetical, based on price-return index data, and are not indicative of future results. Nothing here is investment advice.</p>
+</footer>
+
+</div>
+
+<script>
+// ---------- theme toggle ----------
+(function(){
+  var btn=document.getElementById('themeBtn'), root=document.documentElement;
+  function cur(){var t=root.getAttribute('data-theme'); if(t)return t;
+    return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+  try{var s=localStorage.getItem('sep200-theme'); if(s)root.setAttribute('data-theme',s);}catch(e){}
+  btn.addEventListener('click',function(){
+    var next=cur()==='dark'?'light':'dark'; root.setAttribute('data-theme',next);
+    try{localStorage.setItem('sep200-theme',next);}catch(e){}
+    drawAll();
+  });
+})();
+
+function cssvar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+var tip=document.getElementById('tip');
+function showTip(html,x,y){tip.innerHTML=html; tip.style.left=x+'px'; tip.style.top=y+'px'; tip.style.opacity=1;}
+function hideTip(){tip.style.opacity=0;}
+function bindTips(el){
+  el.querySelectorAll('.bar').forEach(function(r){
+    r.addEventListener('mousemove',function(e){showTip(r.getAttribute('data-tip'),e.clientX,e.clientY);});
+    r.addEventListener('mouseleave',hideTip);
+  });
+}
+
+// ---------- signed bar chart (supports negatives + a zero baseline) ----------
+function signedBars(sel, opts){
+  var el=document.querySelector(sel); if(!el)return;
+  var cats=opts.cats, vals=opts.values, colors=opts.colors;
+  var ymin=opts.ymin, ymax=opts.ymax, step=opts.step;
+  var W=920, H=360, mL=46, mR=14, mT=20, mB=44;
+  var pw=W-mL-mR, ph=H-mT-mB;
+  var y=function(v){return mT+ph-(v-ymin)/(ymax-ymin)*ph;};
+  var muted=cssvar('--muted'), grid=cssvar('--grid'), base=cssvar('--baseline'), ink=cssvar('--ink-2');
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+opts.aria+'">';
+  for(var g=ymin; g<=ymax+1e-9; g+=step){
+    var yy=y(g);
+    svg+='<line x1="'+mL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+yy.toFixed(1)+'" stroke="'+grid+'" stroke-width="1"/>';
+    svg+='<text x="'+(mL-8)+'" y="'+(yy+4).toFixed(1)+'" fill="'+muted+'" font-size="12" text-anchor="end">'+(g>0?'+':'')+g.toFixed(1)+'</text>';
+  }
+  var y0=y(0);
+  svg+='<line x1="'+mL+'" y1="'+y0.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+y0.toFixed(1)+'" stroke="'+base+'" stroke-width="1.5"/>';
+  var n=cats.length, gw=pw/n, bw=Math.min(gw*0.56, 52);
+  for(var i=0;i<n;i++){
+    var gx=mL+i*gw+gw/2, bx=gx-bw/2, v=vals[i], vy=y(v);
+    var col=cssvar(colors[i]);
+    var top=Math.min(vy,y0), bh=Math.abs(y0-vy);
+    svg+='<rect class="bar" x="'+bx.toFixed(1)+'" y="'+top.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="4" fill="'+col+'" data-tip="'+cats[i]+': <b>'+(v>0?'+':'')+v.toFixed(2)+'%</b>"></rect>';
+    var ly=v>=0?vy-8:vy+16;
+    svg+='<text x="'+gx.toFixed(1)+'" y="'+ly.toFixed(1)+'" fill="'+col+'" font-size="12.5" font-weight="600" text-anchor="middle">'+(v>0?'+':'')+v.toFixed(2)+'</text>';
+    svg+='<text x="'+gx.toFixed(1)+'" y="'+(H-mB+22)+'" fill="'+ink+'" font-size="12.5" text-anchor="middle">'+cats[i]+'</text>';
+  }
+  svg+='</svg>';
+  el.innerHTML=svg; bindTips(el);
+}
+
+// ---------- simple percent bar chart ----------
+function pctBars(sel, opts){
+  var el=document.querySelector(sel); if(!el)return;
+  var cats=opts.cats, vals=opts.values, colors=opts.colors, subs=opts.subs||[];
+  var W=920, H=360, mL=46, mR=14, mT=20, mB=64;
+  var pw=W-mL-mR, ph=H-mT-mB, ymax=100;
+  var y=function(v){return mT+ph-(v/ymax)*ph;};
+  var muted=cssvar('--muted'), grid=cssvar('--grid'), base=cssvar('--baseline'), ink=cssvar('--ink-2');
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+opts.aria+'">';
+  for(var g=0; g<=100; g+=25){
+    var yy=y(g);
+    svg+='<line x1="'+mL+'" y1="'+yy+'" x2="'+(W-mR)+'" y2="'+yy+'" stroke="'+grid+'" stroke-width="1"/>';
+    svg+='<text x="'+(mL-8)+'" y="'+(yy+4)+'" fill="'+muted+'" font-size="12" text-anchor="end">'+g+'</text>';
+  }
+  svg+='<line x1="'+mL+'" y1="'+y(0)+'" x2="'+(W-mR)+'" y2="'+y(0)+'" stroke="'+base+'" stroke-width="1.5"/>';
+  var n=cats.length, gw=pw/n, bw=Math.min(gw*0.5, 120);
+  for(var i=0;i<n;i++){
+    var gx=mL+i*gw+gw/2, bx=gx-bw/2, v=vals[i], vy=y(v), bh=y(0)-vy;
+    var col=cssvar(colors[i]);
+    svg+='<rect class="bar" x="'+bx.toFixed(1)+'" y="'+vy.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="4" fill="'+col+'" data-tip="'+cats[i]+': <b>'+v+'%</b> above the line"></rect>';
+    svg+='<text x="'+gx.toFixed(1)+'" y="'+(vy-8).toFixed(1)+'" fill="'+col+'" font-size="15" font-weight="600" text-anchor="middle">'+v+'%</text>';
+    var lines=cats[i].split('\n');
+    for(var k=0;k<lines.length;k++)
+      svg+='<text x="'+gx.toFixed(1)+'" y="'+(H-mB+22+k*16)+'" fill="'+ink+'" font-size="12.5" text-anchor="middle">'+lines[k]+'</text>';
+  }
+  svg+='</svg>';
+  el.innerHTML=svg; bindTips(el);
+}
+
+function drawAll(){
+  // September + October flagged in the "claim" color; the rest in trend blue
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var mret=[1.46,0.33,0.80,0.85,1.11,1.26,1.37,0.37,0.07,-0.36,1.68,1.76];
+  var mcol=months.map(function(m){return (m==='Sep'||m==='Oct')?'--claim':'--safe';});
+  signedBars('#chart1',{
+    cats:months, values:mret, colors:mcol,
+    ymin:-0.5, ymax:2.0, step:0.5,
+    aria:'Average monthly return by calendar month when above the 200-day average, September and October flagged'
+  });
+  pctBars('#chart2',{
+    cats:['All months\n(the baseline)','20 biggest\nup-months ever','20 best\nSeptembers'],
+    values:[67,35,75],
+    colors:['--safe','--crit','--pos'],
+    aria:'Share above the 200-day line for all months, the biggest up-months, and the best Septembers'
+  });
+}
+drawAll();
+addEventListener('resize',function(){/* responsive via viewBox */});
+</script>
+</body>
+</html>
