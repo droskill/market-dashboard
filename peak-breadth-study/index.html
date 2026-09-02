@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Thinnest Breadth Ever?</title>
+<meta name="description" content="A table making the case that new highs are the thinnest share of S&P 500 market cap at any peak since 1973. It's a real observation — so I rebuilt the series from point-in-time data. The 'thinnest ever' ranking depends on how you weight it, thin-breadth highs have paid normally, and as a sell rule it loses to the 200-day line.">
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="The thinnest breadth ever? It depends how you weight it.">
+<meta property="og:description" content="Narrow participation at a market high is real and worth watching. But weight new highs by share of stocks instead of market cap and 2000 and 2022 were thinner than today — and thin-breadth highs have historically paid off just fine.">
+<meta property="og:image" content="https://droskill.github.io/market-dashboard/peak-breadth-study/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The thinnest breadth ever? It depends how you weight it.">
+<meta name="twitter:description" content="Rebuilt the peak-breadth table from point-in-time data. The 'thinnest ever' reading is a cap-weighting artifact, thin-breadth highs paid normally, and the 200-day line beats it as a rule.">
+<meta name="twitter:image" content="https://droskill.github.io/market-dashboard/peak-breadth-study/og-cover.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  color-scheme: light;
+  --plane:#e8eaec; --surface:#f7f8f9; --surface-2:#eef0f2;
+  --ink:#14171a; --ink-2:#494e54; --muted:#7f838a;
+  --hair:#d6d9dc; --grid:#e2e4e7; --baseline:#c7cacd;
+  --claim:#d1521f; --safe:#2565c2; --crit:#c0392f; --pos:#12896a;
+  --accent:#1b1e21;
+  --shadow: 0 1px 2px rgba(20,23,26,.05), 0 8px 30px rgba(20,23,26,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0c0e10; --surface:#15181b; --surface-2:#1b1f22;
+    --ink:#eef0f1; --ink-2:#b4b9be; --muted:#7c8188;
+    --hair:#262a2e; --grid:#232629; --baseline:#33383d;
+    --claim:#e0603a; --safe:#4d92e8; --crit:#e15a51; --pos:#20b184;
+    --accent:#eef0f1;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0c0e10; --surface:#15181b; --surface-2:#1b1f22;
+  --ink:#eef0f1; --ink-2:#b4b9be; --muted:#7c8188;
+  --hair:#262a2e; --grid:#232629; --baseline:#33383d;
+  --claim:#e0603a; --safe:#4d92e8; --crit:#e15a51; --pos:#20b184;
+  --accent:#eef0f1;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--plane); color:var(--ink);
+  font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:17px; line-height:1.65; letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:720px; margin:0 auto; padding:0 22px}
+.measure{max-width:680px}
+
+header{padding:60px 0 26px}
+.eyebrow{
+  font-family:"IBM Plex Mono", monospace; font-size:12.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 20px;
+}
+h1{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(2.5rem, 6.5vw, 4rem); line-height:1.02; letter-spacing:-.015em;
+  margin:0 0 22px; text-wrap:balance;
+}
+h1 em{font-style:italic; color:var(--ink-2); font-weight:500}
+.dek{
+  font-family:"Newsreader", Georgia, serif; font-size:clamp(1.15rem,2.6vw,1.4rem);
+  line-height:1.5; color:var(--ink-2); max-width:640px; margin:0; font-weight:400;
+}
+.byline{
+  display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center;
+  margin-top:30px; padding-top:20px; border-top:1px solid var(--hair);
+  font-family:"IBM Plex Mono", monospace; font-size:12.5px; color:var(--muted);
+}
+.byline b{color:var(--ink-2); font-weight:500}
+
+section{padding:14px 0}
+h2{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(1.6rem,3.6vw,2.05rem); line-height:1.12; letter-spacing:-.01em;
+  margin:44px 0 6px; text-wrap:balance;
+}
+h2 .num{
+  font-family:"IBM Plex Mono", monospace; font-size:.62em; color:var(--safe);
+  font-weight:500; margin-right:.6em; letter-spacing:0;
+}
+p{margin:0 0 20px}
+p .measure, .measure p{max-width:680px}
+a{color:var(--safe); text-underline-offset:2px; text-decoration-thickness:1px}
+strong{font-weight:600}
+.lead{font-size:1.06em}
+
+.tiles{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:30px 0 8px;
+}
+.tile{
+  background:var(--surface); border:1px solid var(--hair); border-radius:12px;
+  padding:20px 18px; box-shadow:var(--shadow);
+}
+.tile .lab{
+  font-family:"IBM Plex Mono", monospace; font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 10px; line-height:1.3;
+}
+.tile .big{
+  font-family:"Newsreader", Georgia, serif; font-size:2.6rem; line-height:1;
+  font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums;
+}
+.tile .sub{font-size:13px; color:var(--ink-2); margin-top:8px; line-height:1.4}
+.c-claim{color:var(--claim)} .c-safe{color:var(--safe)} .c-crit{color:var(--crit)} .c-pos{color:var(--pos)}
+
+figure{margin:34px 0; }
+@media(min-width:940px){
+  .breakout{width:min(920px,92vw); margin-left:calc(360px - min(920px,92vw)/2)}
+}
+.card{
+  background:var(--surface); border:1px solid var(--hair); border-radius:14px;
+  padding:22px 20px 16px; box-shadow:var(--shadow);
+}
+.card h3{
+  margin:0 0 3px; font-family:"IBM Plex Sans",sans-serif; font-weight:600;
+  font-size:1.06rem; letter-spacing:-.01em;
+}
+.card .csub{margin:0 0 14px; font-size:13px; color:var(--muted); font-family:"IBM Plex Mono",monospace}
+.legend{display:flex; flex-wrap:wrap; gap:16px; margin:2px 0 6px}
+.legend span{display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-2)}
+.legend i{width:11px; height:11px; border-radius:3px; display:inline-block}
+.legend i.dash{width:16px; height:0; border-radius:0; border-top:2px dashed var(--crit)}
+figcaption{
+  font-size:13.5px; color:var(--muted); margin-top:14px; line-height:1.5;
+  font-family:"IBM Plex Sans",sans-serif; max-width:680px;
+}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.bar{transition:opacity .12s}
+.chart:hover .bar{opacity:.42}
+.chart .bar:hover{opacity:1}
+.dot{transition:opacity .12s}
+.chart:hover .dot{opacity:.4}
+.chart .dot:hover{opacity:1}
+text{font-family:"IBM Plex Mono", monospace}
+
+.tablewrap{overflow-x:auto; margin:24px 0}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:520px}
+caption{
+  text-align:left; font-family:"IBM Plex Mono",monospace; font-size:12px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+  padding-bottom:12px;
+}
+th,td{padding:9px 12px; text-align:right; font-variant-numeric:tabular-nums;
+  border-bottom:1px solid var(--hair)}
+th:first-child,td:first-child{text-align:left; font-variant-numeric:normal}
+thead th{
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--muted); font-weight:500;
+  border-bottom:1.5px solid var(--baseline);
+}
+tbody tr:hover{background:var(--surface-2)}
+td.hi{color:var(--claim); font-weight:600}
+td.lo{color:var(--pos); font-weight:600}
+td.neg{color:var(--crit)}
+tr.mark td{background:color-mix(in srgb, var(--pos) 9%, transparent)}
+tr.mark:hover td{background:color-mix(in srgb, var(--pos) 14%, transparent)}
+tr.mark td:first-child{box-shadow:inset 3px 0 0 var(--pos)}
+
+.callout{
+  border-left:3px solid var(--safe); background:var(--surface);
+  padding:18px 22px; border-radius:0 10px 10px 0; margin:30px 0;
+  box-shadow:var(--shadow);
+}
+.callout p{margin:0; font-family:"Newsreader",Georgia,serif; font-size:1.22rem;
+  line-height:1.45; color:var(--ink)}
+.callout .who{display:block; margin-top:10px; font-family:"IBM Plex Mono",monospace;
+  font-size:12px; color:var(--muted); letter-spacing:.04em}
+
+.method{
+  background:var(--surface-2); border:1px solid var(--hair); border-radius:14px;
+  padding:24px 22px; margin:34px 0;
+}
+.method h3{margin:0 0 14px; font-size:.95rem; font-family:"IBM Plex Mono",monospace;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.method ul{margin:0; padding:0; list-style:none}
+.method li{padding:9px 0; border-bottom:1px solid var(--hair); font-size:14.5px;
+  color:var(--ink-2); display:grid; grid-template-columns:130px 1fr; gap:14px}
+.method li:last-child{border-bottom:none}
+.method li b{color:var(--ink); font-family:"IBM Plex Mono",monospace; font-size:12.5px;
+  font-weight:600; padding-top:1px}
+.method code{font-family:"IBM Plex Mono",monospace; font-size:.9em;
+  background:var(--surface); padding:1px 5px; border-radius:4px; border:1px solid var(--hair)}
+
+footer{border-top:1px solid var(--hair); margin-top:56px; padding:34px 0 70px;
+  font-size:13.5px; color:var(--muted); line-height:1.6}
+footer a{font-family:"IBM Plex Mono",monospace; font-size:13px}
+.disc{font-size:12px; margin-top:18px; color:var(--muted); max-width:680px}
+
+.toggle{
+  position:fixed; top:16px; right:16px; z-index:10;
+  width:38px; height:38px; border-radius:10px; cursor:pointer;
+  background:var(--surface); border:1px solid var(--hair); color:var(--ink-2);
+  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);
+  font-size:16px;
+}
+.toggle:focus-visible{outline:2px solid var(--safe); outline-offset:2px}
+
+#tip{
+  position:fixed; pointer-events:none; opacity:0; transition:opacity .1s;
+  background:var(--ink); color:var(--plane); font-family:"IBM Plex Mono",monospace;
+  font-size:12px; padding:7px 10px; border-radius:7px; z-index:20; white-space:nowrap;
+  transform:translate(-50%,-125%); box-shadow:0 4px 16px rgba(0,0,0,.25);
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+@media (max-width:560px){
+  .tiles{grid-template-columns:1fr; gap:10px}
+  .tile .big{font-size:2.3rem}
+  .method li{grid-template-columns:1fr; gap:2px}
+  .method li b{padding-top:8px}
+}
+</style>
+</head>
+<body>
+
+<button class="toggle" id="themeBtn" aria-label="Toggle light/dark theme" title="Toggle theme">◑</button>
+<div id="tip" role="status"></div>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">A market-breadth rabbit hole · Sep 2026</p>
+  <h1>The thinnest breadth <em>ever?</em></h1>
+  <p class="dek">A chart I came across makes a sharp point: at every major S&amp;P 500 peak since 1973, new highs were at least 6% of index market cap &mdash; until August 13, when the all-time high came with just 3.73%. The thinnest ever, the author says, and an ominous sign. It&rsquo;s a genuinely good thing to watch, so I rebuilt the whole series from point-in-time data and pushed on it three ways.</p>
+  <div class="byline">
+    <span><b>@droskill</b></span>
+    <span>S&amp;P 500 ($SPX)</span>
+    <span>14 major peaks · 1973&ndash;2026</span>
+    <span>Norgate Data</span>
+  </div>
+</header>
+
+<section class="measure">
+  <p class="lead">First, credit where it&rsquo;s due &mdash; this is a real observation about a real thing. Bull markets do tend to narrow before they end: fewer and fewer stocks carry the index to its final high while the average name has already rolled over. Watching participation instead of just the index level is exactly the right instinct, and compiling it back to 1973 is genuine work. The raw new-high <em>counts</em> in the table line up almost exactly with what I pull from Norgate at each peak, so we&rsquo;re looking at the same market. I just wanted to poke at the conclusion.</p>
+
+  <p>Three questions fell out of it. Does &ldquo;thinnest ever&rdquo; hold up under a different, equally fair way of counting? Has a thin-breadth high actually been a warning in the past? And if you traded on it, would you have come out ahead? The answers, in order: it depends how you weight it, not really, and no &mdash; a plain 200-day moving average does the job better.</p>
+</section>
+
+<section>
+  <div class="tiles">
+    <div class="tile">
+      <p class="lab">Aug 13 · new highs by market cap</p>
+      <div class="big c-claim">3.73<span style="font-size:.5em">%</span></div>
+      <p class="sub">The author&rsquo;s figure &mdash; and yes, the lowest in their table of major peaks going back to 1973.</p>
+    </div>
+    <div class="tile">
+      <p class="lab">Aug 13 · new highs by share of stocks</p>
+      <div class="big c-safe">5.17<span style="font-size:.5em">%</span></div>
+      <p class="sub">Weight every stock equally and 2000 (3.4%) and 2022 (3.6%) were <em>thinner</em> than today. The ranking flips with the weighting.</p>
+    </div>
+    <div class="tile">
+      <p class="lab">One year after a thin-breadth high</p>
+      <div class="big c-pos">+14.0<span style="font-size:.5em">%</span></div>
+      <p class="sub">Average SPY total return after a new high with breadth under 6% &mdash; a touch <em>above</em> the +12.3% all-days baseline.</p>
+    </div>
+  </div>
+</section>
+
+<section class="measure">
+  <h2><span class="num">01</span>&ldquo;Thinnest ever&rdquo; depends on how you weight it</h2>
+  <p>The table measures new highs as a share of <strong>market cap</strong>. That&rsquo;s a reasonable choice, but it isn&rsquo;t the only one &mdash; you can also just count what fraction of the 500 <strong>stocks</strong> are making new highs. At most peaks the two agree. At a few they part ways sharply, and that&rsquo;s where the &ldquo;thinnest ever&rdquo; claim lives.</p>
+  <p>March 2000 is the tell. Only sixteen stocks were at new highs &mdash; a paltry 3.4% by count &mdash; but those sixteen were the giant tech names, so weighting by size lifted the reading to a comfortable-looking 12.45%. Today&rsquo;s few new highs are <em>not</em> the mega-caps, so the same math runs the other way and pulls the cap-weighted number down to 3.73%. By simple stock count, 2000 and 2022 were both thinner than now. &ldquo;Thinnest ever&rdquo; is true only in the one construction that, in a top-heavy index, mostly tracks whether a handful of giants happened to be at a high that day.</p>
+</section>
+
+<figure class="breakout">
+  <div class="card">
+    <h3>New-high breadth at every major S&amp;P 500 peak &mdash; two ways to count it</h3>
+    <p class="csub">share of market cap vs. share of stocks · 1973&ndash;2026</p>
+    <div class="legend">
+      <span><i style="background:var(--claim)"></i>% of market cap (the author&rsquo;s metric)</span>
+      <span><i style="background:var(--safe)"></i>% of stocks (equal-weight count)</span>
+      <span><i class="dash"></i>the 6% &ldquo;floor&rdquo;</span>
+    </div>
+    <div class="chart" id="chart1"></div>
+  </div>
+  <figcaption>Each pair is one major peak. The <span style="color:var(--claim)">cap-weighted</span> dots clear the 6% line at every top until 2026 &mdash; but the <span style="color:var(--safe)">equal-weight</span> dots already dipped below it in 2000 and 2022. Where the orange sits far above the blue, as in 2000, a few very large stocks are doing the lifting.</figcaption>
+</figure>
+
+<section class="measure">
+  <h2><span class="num">02</span>A thin-breadth high hasn&rsquo;t actually been a warning</h2>
+  <p>Here&rsquo;s the part that surprised me. If narrow breadth at a new high were ominous, you&rsquo;d expect weak returns to follow. They don&rsquo;t. Take every day the S&amp;P made a fresh three-month high since 1993 and split them by how broad the move was. New highs on <em>thin</em> breadth (under 6% of stocks) were followed by returns at or slightly <strong>above</strong> the everyday baseline &mdash; and a hair better than <em>broad</em> highs &mdash; at every horizon out to a year.</p>
+  <p>It&rsquo;s not luck; it&rsquo;s structural. Chronically narrow breadth is the <em>signature</em> of a mega-cap-led bull &mdash; the late 1990s, 2020&ndash;21, 2023&ndash;25 &mdash; where the index keeps grinding higher for years while the average stock lags. A signal that&rsquo;s been lit through most of the best runs in the sample isn&rsquo;t much of a top-timer.</p>
+</section>
+
+<figure class="breakout">
+  <div class="card">
+    <h3>Forward SPY total return after a new index high, by how broad it was</h3>
+    <p class="csub">1993&ndash;2026 · average return, dividends included</p>
+    <div class="legend">
+      <span><i style="background:var(--safe)"></i>every high (baseline)</span>
+      <span><i style="background:var(--claim)"></i>thin &mdash; breadth &lt; 6%</span>
+      <span><i style="background:var(--baseline)"></i>broad &mdash; breadth &ge; 12%</span>
+    </div>
+    <div class="chart" id="chart2"></div>
+  </div>
+  <figcaption>At 10 weeks, 25 weeks, and a full year, a new high on <span style="color:var(--claim)">thin breadth</span> paid at least as well as the average day &mdash; and a touch better than a <span style="color:var(--ink-2)">broad</span> one. Based on 205 thin-breadth high days. Whatever narrow participation is telling you, &ldquo;sell&rdquo; isn&rsquo;t it.</figcaption>
+</figure>
+
+<section class="measure">
+  <h2><span class="num">03</span>And as a sell rule, it loses to the 200-day line</h2>
+  <p>The real test of an &ldquo;ominous&rdquo; signal is whether acting on it helps. So I gated SPY on it: hold when breadth is broad, step aside when it isn&rsquo;t, and compare against buy-and-hold and against a plain 200-day moving-average trend filter. The breadth gate is the worst of the three by a wide margin. It parks you in cash during exactly the narrow-breadth mega-cap advances that produce most of the return, so it compounds at essentially zero &mdash; and its drawdown protection is <em>worse</em> than the moving average anyway. Layer it on top of the 200-day line and it only subtracts.</p>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Risk-off gates on SPY total return · signal at the close, trade next day · 1993&ndash;2026</caption>
+      <thead>
+        <tr><th>Gate</th><th>CAGR</th><th>Max DD</th><th>MAR</th><th>Sharpe</th><th>In market</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Buy &amp; hold</td><td>+10.9%</td><td class="neg">&minus;55%</td><td>0.20</td><td>0.65</td><td>100%</td></tr>
+        <tr class="mark"><td>200-day moving average</td><td>+8.2%</td><td>&minus;26%</td><td class="lo">0.32</td><td class="lo">0.72</td><td>75%</td></tr>
+        <tr><td>Breadth &gt; 6%</td><td class="neg">&minus;0.3%</td><td class="neg">&minus;35%</td><td class="neg">&minus;0.01</td><td class="neg">&minus;0.01</td><td>32%</td></tr>
+        <tr><td>200-day <em>and</em> breadth&gt;6%</td><td class="neg">&minus;0.2%</td><td class="neg">&minus;34%</td><td class="neg">&minus;0.01</td><td>0.00</td><td>31%</td></tr>
+        <tr><td>200-day <em>or</em> breadth&gt;6%</td><td>+8.1%</td><td>&minus;26%</td><td>0.31</td><td>0.71</td><td>76%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <p>Narrow participation is worth watching &mdash; the table is right that it thins out near tops. But by the tradeable version of the question, the tell was never the breadth reading. It was the trend line the breadth reading is standing in front of.</p>
+    <span class="who">Same idea, one rabbit hole deeper.</span>
+  </div>
+</section>
+
+<section class="measure">
+  <h2><span class="num">04</span>So what do you actually do?</h2>
+  <p>Respect the observation, skip the alarm. Breadth this narrow is real, and it does say the current advance is fragile &mdash; fewer names are holding it up, and when leadership like that cracks it can crack fast. That&rsquo;s worth knowing. What the history won&rsquo;t support is using the reading as a <em>timer</em>: thin-breadth highs have paid off normally, and a strategy built on stepping aside for them would have missed years of gains. If you want a rule that has actually protected capital, it&rsquo;s the boring one &mdash; watch whether the index is above or below its 200-day line. Treat narrow breadth as context that raises your attention, not as a sell button. Today it&rsquo;s a warning light; it has been glowing through most of the best bull markets on record.</p>
+</section>
+
+<div class="method measure">
+  <h3>Receipts</h3>
+  <ul>
+    <li><b>Breadth</b><span>S&amp;P 500 new-52-week-high counts and internals from Norgate Data (<code>#SPX52WHI</code> and siblings), point-in-time, back to 1970. Equal-weight breadth = new highs &divide; (advances + declines + unchanged).</span></li>
+    <li><b>Cap-weight</b><span>The author&rsquo;s market-cap version <em>can&rsquo;t</em> be reproduced historically &mdash; Norgate exposes only current shares outstanding, not point-in-time market caps &mdash; which is also why the 1973 row is the one count that doesn&rsquo;t match. The comparison here uses the equal-weight count, validated against the table&rsquo;s own raw HIGHS column at every peak from 1976 on.</span></li>
+    <li><b>Event test</b><span>Forward total return of SPY (dividends included) after any day the index closed at a fresh 60-trading-day high, 1993&ndash;2026, split by equal-weight breadth. Thin &lt; 6% (n = 205 days); broad &ge; 12%.</span></li>
+    <li><b>Gate test</b><span>SPY total return, signal read at the close and the position taken the next day (no look-ahead). 200-day filter is the simple moving average of the S&amp;P close. MAR = CAGR &divide; max drawdown.</span></li>
+    <li><b>Note</b><span>Peaks and their bear-market declines are the ones named in the original table. The event and gate tests start in 1993, where SPY total-return data begins.</span></li>
+  </ul>
+</div>
+
+<section class="measure">
+  <p style="color:var(--ink-2)">None of this makes the original point wrong, and that&rsquo;s the good part. It grabbed the right variable &mdash; participation, not just price &mdash; and did the work to line it up across history. Chasing that same variable a step further just adds a coda: how thin &ldquo;thinnest&rdquo; is depends on your ruler, thin highs have paid off fine, and the tradeable edge sits in the trend line, not the breadth number. The market really is narrow right now. It&rsquo;s just not a countdown.</p>
+</section>
+
+<footer class="wrap">
+  <div>Analysis and code by <b style="color:var(--ink-2)">@droskill</b>, in constructive reply to the chart that prompted it. Breadth and prices from Norgate Data; analysis in Python (norgatedata + pandas) and RealTest.</div>
+  <p class="disc">For research and education only. Historical results are hypothetical, based on index and total-return data, and are not indicative of future results. Nothing here is investment advice.</p>
+</footer>
+
+</div>
+
+<script>
+// ---------- theme toggle ----------
+(function(){
+  var btn=document.getElementById('themeBtn'), root=document.documentElement;
+  function cur(){var t=root.getAttribute('data-theme'); if(t)return t;
+    return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+  try{var s=localStorage.getItem('breadth-theme'); if(s)root.setAttribute('data-theme',s);}catch(e){}
+  btn.addEventListener('click',function(){
+    var next=cur()==='dark'?'light':'dark'; root.setAttribute('data-theme',next);
+    try{localStorage.setItem('breadth-theme',next);}catch(e){}
+    drawAll();
+  });
+})();
+
+function cssvar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+var tip=document.getElementById('tip');
+function showTip(html,x,y){tip.innerHTML=html; tip.style.left=x+'px'; tip.style.top=y+'px'; tip.style.opacity=1;}
+function hideTip(){tip.style.opacity=0;}
+
+// ---------- dumbbell: two breadth readings at each peak ----------
+function dumbbell(sel, opts){
+  var el=document.querySelector(sel); if(!el)return;
+  var d=opts.data, ymax=opts.ymax, step=opts.step;
+  var W=920, H=380, mL=40, mR=16, mT=22, mB=46;
+  var pw=W-mL-mR, ph=H-mT-mB;
+  var y=function(v){return mT+ph-(v/ymax)*ph;};
+  var x=function(i){return mL+(i+0.5)/d.length*pw;};
+  var muted=cssvar('--muted'), grid=cssvar('--grid'), ink=cssvar('--ink-2');
+  var claim=cssvar('--claim'), safe=cssvar('--safe'), crit=cssvar('--crit'), base=cssvar('--baseline');
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+opts.aria+'">';
+  for(var g=0; g<=ymax+1e-9; g+=step){
+    var yy=y(g);
+    svg+='<line x1="'+mL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+yy.toFixed(1)+'" stroke="'+grid+'" stroke-width="1"/>';
+    svg+='<text x="'+(mL-8)+'" y="'+(yy+4).toFixed(1)+'" fill="'+muted+'" font-size="12" text-anchor="end">'+g+'</text>';
+  }
+  // 6% floor
+  var y6=y(6);
+  svg+='<line x1="'+mL+'" y1="'+y6.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+y6.toFixed(1)+'" stroke="'+crit+'" stroke-width="1.6" stroke-dasharray="6 5"/>';
+  svg+='<text x="'+(W-mR)+'" y="'+(y6-7).toFixed(1)+'" fill="'+crit+'" font-size="11.5" font-weight="600" text-anchor="end">6% floor</text>';
+  for(var i=0;i<d.length;i++){
+    var xi=x(i), yc=y(d[i].cap), yn=y(d[i].cnt), last=i===d.length-1;
+    svg+='<line x1="'+xi.toFixed(1)+'" y1="'+yc.toFixed(1)+'" x2="'+xi.toFixed(1)+'" y2="'+yn.toFixed(1)+'" stroke="'+muted+'" stroke-width="1.5" opacity="'+(last?.9:.42)+'"/>';
+    svg+='<circle class="dot" cx="'+xi.toFixed(1)+'" cy="'+yc.toFixed(1)+'" r="'+(last?6:4.6)+'" fill="'+claim+'" data-tip="'+d[i].full+' &mdash; by market cap: <b>'+d[i].cap.toFixed(2)+'%</b>"></circle>';
+    svg+='<circle class="dot" cx="'+xi.toFixed(1)+'" cy="'+yn.toFixed(1)+'" r="'+(last?6:4.6)+'" fill="'+safe+'" data-tip="'+d[i].full+' &mdash; by share of stocks: <b>'+d[i].cnt.toFixed(2)+'%</b>"></circle>';
+    if(last) svg+='<circle cx="'+xi.toFixed(1)+'" cy="'+yc.toFixed(1)+'" r="10" fill="none" stroke="'+claim+'" stroke-width="1.4" opacity=".5"/>';
+    svg+='<text x="'+xi.toFixed(1)+'" y="'+(H-mB+22)+'" fill="'+ink+'" font-size="12" text-anchor="middle">'+d[i].d+'</text>';
+  }
+  svg+='</svg>';
+  el.innerHTML=svg; bindTips(el);
+}
+
+// ---------- grouped bars: forward return by breadth regime ----------
+function groupedBars(sel, opts){
+  var el=document.querySelector(sel); if(!el)return;
+  var groups=opts.groups, series=opts.series, ymax=opts.ymax, step=opts.step;
+  var W=920, H=360, mL=40, mR=14, mT=20, mB=46;
+  var pw=W-mL-mR, ph=H-mT-mB;
+  var y=function(v){return mT+ph-(v/ymax)*ph;};
+  var muted=cssvar('--muted'), grid=cssvar('--grid'), base=cssvar('--baseline'), ink=cssvar('--ink-2');
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+opts.aria+'">';
+  for(var g=0; g<=ymax+1e-9; g+=step){
+    var yy=y(g);
+    svg+='<line x1="'+mL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+yy.toFixed(1)+'" stroke="'+grid+'" stroke-width="1"/>';
+    svg+='<text x="'+(mL-8)+'" y="'+(yy+4).toFixed(1)+'" fill="'+muted+'" font-size="12" text-anchor="end">'+g+'</text>';
+  }
+  svg+='<line x1="'+mL+'" y1="'+y(0).toFixed(1)+'" x2="'+(W-mR)+'" y2="'+y(0).toFixed(1)+'" stroke="'+base+'" stroke-width="1.5"/>';
+  var ng=groups.length, gw=pw/ng, ns=series.length, bw=Math.min(gw*0.66/ns, 60), pad=gw*0.17;
+  for(var gi=0; gi<ng; gi++){
+    var gx0=mL+gi*gw+pad;
+    for(var si=0; si<ns; si++){
+      var col=cssvar(series[si].color), v=series[si].values[gi];
+      var bx=gx0+si*bw, vy=y(v), bh=y(0)-vy;
+      svg+='<rect class="bar" x="'+bx.toFixed(1)+'" y="'+vy.toFixed(1)+'" width="'+(bw-4).toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="3.5" fill="'+col+'" data-tip="'+series[si].name+' &mdash; '+groups[gi]+': <b>+'+v.toFixed(1)+'%</b>"></rect>';
+      svg+='<text x="'+(bx+(bw-4)/2).toFixed(1)+'" y="'+(vy-7).toFixed(1)+'" fill="'+col+'" font-size="11.5" font-weight="600" text-anchor="middle">+'+v.toFixed(1)+'</text>';
+    }
+    svg+='<text x="'+(mL+gi*gw+gw/2).toFixed(1)+'" y="'+(H-mB+24)+'" fill="'+ink+'" font-size="12.5" text-anchor="middle">'+groups[gi]+'</text>';
+  }
+  svg+='</svg>';
+  el.innerHTML=svg; bindTips(el);
+}
+
+function bindTips(el){
+  el.querySelectorAll('[data-tip]').forEach(function(r){
+    r.addEventListener('mousemove',function(e){showTip(r.getAttribute('data-tip'),e.clientX,e.clientY);});
+    r.addEventListener('mouseleave',hideTip);
+  });
+}
+
+function drawAll(){
+  dumbbell('#chart1',{
+    ymax:32, step:8,
+    data:[
+      {d:"'73",full:"Jan 1973",cap:19.05,cnt:6.99},{d:"'76",full:"Sep 1976",cap:29.78,cnt:11.97},
+      {d:"'80",full:"Nov 1980",cap:19.39,cnt:7.44},{d:"'87",full:"Aug 1987",cap:21.63,cnt:13.20},
+      {d:"'90",full:"Jul 1990",cap:22.76,cnt:12.40},{d:"'98",full:"Jul 1998",cap:20.12,cnt:9.60},
+      {d:"'00",full:"Mar 2000",cap:12.45,cnt:3.40},{d:"'07",full:"Oct 2007",cap:15.23,cnt:12.80},
+      {d:"'11",full:"Apr 2011",cap:21.45,cnt:17.80},{d:"'18",full:"Sep 2018",cap:17.11,cnt:9.50},
+      {d:"'20",full:"Feb 2020",cap:19.93,cnt:12.28},{d:"'22",full:"Jan 2022",cap:10.51,cnt:3.56},
+      {d:"'25",full:"Feb 2025",cap:6.44,cnt:7.16},{d:"'26",full:"Aug 2026",cap:3.73,cnt:5.17}
+    ],
+    aria:'New-high breadth at each major S&P 500 peak, by market cap and by share of stocks, 1973 to 2026'
+  });
+  groupedBars('#chart2',{
+    ymax:16, step:4,
+    groups:['+10 weeks','+25 weeks','+1 year'],
+    series:[
+      {name:'every high (baseline)', color:'--safe',     values:[2.9,5.9,12.3]},
+      {name:'thin (breadth < 6%)',   color:'--claim',    values:[3.6,7.2,14.0]},
+      {name:'broad (breadth ≥ 12%)', color:'--baseline', values:[2.2,5.2,12.4]}
+    ],
+    aria:'Forward SPY total return after a new index high, split by baseline, thin breadth, and broad breadth'
+  });
+}
+drawAll();
+addEventListener('resize',function(){/* responsive via viewBox */});
+</script>
+</body>
+</html>
